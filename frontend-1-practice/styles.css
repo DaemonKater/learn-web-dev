@@ -1,13 +1,587 @@
-/* Стили страницы.
-   Пишите здесь. */
-
+/* Базовый сброс и палитра макета AURA */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-page: #efebe4;
+    --bg-card: #fbf9f5;
+    --color-text-main: #26342e;
+    --color-text-muted: #8b857c;
+    --color-text-light: #b0aba3;
+    --color-accent: #a85d49;
+    --color-accent-hover: #934e3b;
+    --color-border: #ded8ce;
+    --color-border-card: #ece6dc;
+    --color-step-done: #4b6255;
+    --badge-draft-bg: #e3eae4;
+    --badge-draft-text: #2f543e;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-  min-height: 100vh;
-  font-family: sans-serif;
+    background-color: var(--bg-page);
+    color: var(--color-text-main);
+    font-family: var(--font-sans);
+    line-height: 1.4;
+    min-height: 100vh;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 24px;
+    width: 100%;
+}
+
+/* ===============================
+   Шапка (Header) и Степпер
+   =============================== */
+.header {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--color-border);
+    padding-top: 18px;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-logo {
+    width: 38px;
+    height: 38px;
+    background-color: var(--color-text-main);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    line-height: 1;
+}
+
+.brand-subtitle {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--color-text-muted);
+    margin-top: 3px;
+}
+
+.header-help {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.help-label {
+    color: var(--color-text-muted);
+}
+
+.help-phone {
+    color: var(--color-text-main);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.help-phone:hover {
+    color: var(--color-accent);
+}
+
+/* Степпер (линия и шаги) */
+.stepper-nav {
+    padding-bottom: 16px;
+}
+
+.stepper-progress {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.progress-bar {
+    height: 2px;
+    background-color: var(--color-border);
+    border-radius: 2px;
+}
+
+.progress-bar.filled {
+    background-color: var(--color-accent);
+}
+
+.stepper-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+.step-badge {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: #e6e0d7;
+    color: var(--color-text-muted);
+}
+
+.step-item.completed .step-badge {
+    background-color: var(--color-step-done);
+    color: #ffffff;
+}
+
+.step-item.active {
+    color: var(--color-text-main);
+    font-weight: 600;
+}
+
+.step-item.active .step-badge {
+    background-color: var(--color-accent);
+    color: #ffffff;
+}
+
+/* ===============================
+   Основная часть (Main)
+   =============================== */
+.main {
+    flex: 1;
+    padding: 36px 0 40px;
+}
+
+.page-intro {
+    margin-bottom: 28px;
+}
+
+.step-kicker {
+    display: inline-block;
+    color: var(--color-accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+
+.page-title {
+    font-family: var(--font-serif);
+    font-size: 38px;
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--color-text-main);
+    margin-bottom: 10px;
+}
+
+.page-description {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    max-width: 520px;
+}
+
+/* ===============================
+   Раскладка трёх карточек
+   =============================== */
+.booking-layout {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1.25fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--color-border-card);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    line-height: 1.1;
+}
+
+.card-subtitle {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin-top: 4px;
+}
+
+/* ===============================
+   Карточка 1: Календарь
+   =============================== */
+.calendar-arrows {
+    display: flex;
+    gap: 8px;
+}
+
+.arrow-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-main);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.arrow-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    transform: scale(1.05);
+}
+
+.weekdays-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 12px;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px 4px;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.day-cell {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    background: transparent;
+    border: none;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.day-cell:hover:not(.disabled):not(.other-month):not(.selected) {
+    background-color: #eee9e0;
+    color: var(--color-accent);
+}
+
+.day-cell.selected {
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.day-cell.disabled {
+    color: var(--color-text-light);
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
+.day-cell.other-month {
+    color: var(--color-text-light);
+    cursor: default;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: 20px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    padding-top: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.legend-dot.available {
+    background-color: var(--color-text-main);
+}
+
+.legend-dot.unavailable {
+    background-color: var(--color-text-light);
+}
+
+/* ===============================
+   Карточка 2: Слоты времени
+   =============================== */
+.slots-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 20px;
+}
+
+.slot-item {
+    background-color: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.slot-item:hover:not(.selected) {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    box-shadow: 0 2px 8px rgba(168, 93, 73, 0.12);
+}
+
+.slot-item.selected {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #ffffff;
+}
+
+.time-footer-note {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+}
+
+.note-icon {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+}
+
+/* ===============================
+   Карточка 3: Ваша запись (Summary)
+   =============================== */
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.badge-draft {
+    background-color: var(--badge-draft-bg);
+    color: var(--badge-draft-text);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+
+.summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.summary-row dt {
+    color: var(--color-text-muted);
+}
+
+.summary-row dd {
+    color: var(--color-text-main);
+    font-weight: 600;
+    text-align: right;
+}
+
+.summary-divider {
+    height: 1px;
+    background-color: var(--color-border);
+    margin: 20px 0 16px;
+}
+
+.summary-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 22px;
+}
+
+.total-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
+.total-price {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
+.summary-guarantee {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    line-height: 1.35;
+}
+
+.guarantee-icon {
+    flex-shrink: 0;
+    color: var(--color-step-done);
+    margin-top: 1px;
+}
+
+/* ===============================
+   Подвал (Footer / Панель действий)
+   =============================== */
+.footer {
+    border-top: 1px solid var(--color-border);
+    padding: 22px 0 28px;
+    margin-top: auto;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-main);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: var(--color-accent);
+}
+
+.footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.timer-block {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.timer-icon {
+    color: var(--color-accent);
+}
+
+.btn-continue {
+    background-color: var(--color-accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-continue:hover {
+    background-color: var(--color-accent-hover);
+    box-shadow: 0 4px 12px rgba(168, 93, 73, 0.25);
+    transform: translateY(-1px);
+}
+
+/* ===============================
+   Адаптивность (на узких экранах)
+   =============================== */
+@media (max-width: 900px) {
+    .booking-layout {
+        grid-template-columns: 1fr;
+    }
+    .stepper-list {
+        display: none;
+    }
 }
