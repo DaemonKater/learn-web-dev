@@ -47,13 +47,437 @@
 //
 // Ниже — пустой каркас. Здесь можно начать писать.
 
+import { useState, useEffect } from 'react';
+import { fetchToday, fetchSlots } from './api';
+import {
+    MONTHS_NOMINATIVE,
+    MONTHS_GENITIVE,
+    buildCalendarGrid,
+    isDateSelectable,
+    getWeekdayName
+} from './utils/date';
+
 function App() {
-  return (
-    <div>
-      {/* Начните отсюда. Например, разметьте .page, добавьте шапку,
-            основную область, подвал. */}
-    </div>
-  );
+    // 1. Состояние данных сервера
+    const [today, setToday] = useState(null);
+    const [isLoadingToday, setIsLoadingToday] = useState(true);
+    const [errorToday, setErrorToday] = useState(null);
+
+    // 2. Состояние календаря
+    const [currentYear, setCurrentYear] = useState(2026);
+    const [currentMonth, setCurrentMonth] = useState(9); // Октябрь
+    const [selectedDay, setSelectedDay] = useState(18);  // По умолчанию: 18 октября
+    const [selectedTime, setSelectedTime] = useState('14:30'); // По умолчанию: 14:30
+
+    // 3. Состояние слотов времени
+    const [slots, setSlots] = useState([]);
+    const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+    const [errorSlots, setErrorSlots] = useState(null);
+
+    // Запрос 1: Загрузка «сегодня» при открытии страницы
+    const loadTodayData = async () => {
+        try {
+            setIsLoadingToday(true);
+            setErrorToday(null);
+            const data = await fetchToday();
+            setToday(data);
+            setCurrentYear(data.year);
+            setCurrentMonth(data.month);
+            // Если пришли в октябрь 2026, оставляем 18 для соответствия макету
+            if (data.year === 2026 && data.month === 9) {
+                setSelectedDay(18);
+            } else {
+                setSelectedDay(data.day);
+            }
+        } catch (err) {
+            setErrorToday(err.message || 'Не удалось подключиться к серверу');
+        } finally {
+            setIsLoadingToday(false);
+        }
+    };
+
+    useEffect(() => {
+        loadTodayData();
+    }, []);
+
+    // Запрос 2: Загрузка слотов при смене выбранного дня или месяца (с защитой от гонок)
+    useEffect(() => {
+        if (!selectedDay) {
+            setSlots([]);
+            return;
+        }
+
+        let isCurrentRequest = true;
+
+        const loadSlotsData = async () => {
+            try {
+                setIsLoadingSlots(true);
+                setErrorSlots(null);
+                const response = await fetchSlots({
+                    day: selectedDay,
+                    month: currentMonth,
+                    year: currentYear
+                });
+
+                if (isCurrentRequest && response) {
+                    setSlots(response.slots || []);
+                }
+            } catch (err) {
+                if (isCurrentRequest) {
+                    setErrorSlots(err.message || 'Ошибка загрузки слотов');
+                }
+            } finally {
+                if (isCurrentRequest) {
+                    setIsLoadingSlots(false);
+                }
+            }
+        };
+
+        loadSlotsData();
+
+        return () => {
+            isCurrentRequest = false;
+        };
+    }, [selectedDay, currentMonth, currentYear]);
+
+    // Обработчик клика по дню (со сбросом времени)
+    const handleDayClick = (day) => {
+        setSelectedDay(day);
+        setSelectedTime(null);
+    };
+
+    // Обработчик клика по слоту
+    const handleTimeClick = (time) => {
+        setSelectedTime(time);
+    };
+
+    // Листание месяцев
+    const handlePrevMonth = () => {
+        if (currentMonth === 0) {
+            setCurrentMonth(11);
+            setCurrentYear(y => y - 1);
+        } else {
+            setCurrentMonth(m => m - 1);
+        }
+        setSelectedDay(null);
+        setSelectedTime(null);
+    };
+
+    const handleNextMonth = () => {
+        if (currentMonth === 11) {
+            setCurrentMonth(0);
+            setCurrentYear(y => y + 1);
+        } else {
+            setCurrentMonth(m => m + 1);
+        }
+        setSelectedDay(null);
+        setSelectedTime(null);
+    };
+
+    // Вычисляемые поля
+    const weeks = buildCalendarGrid(currentYear, currentMonth);
+    const monthGenitive = MONTHS_GENITIVE[currentMonth];
+    const weekday = selectedDay ? getWeekdayName(currentYear, currentMonth, selectedDay) : '';
+
+    // Расчет времени окончания визита (+ 1.5 часа)
+    let visitEndText = 'Время визита будет рассчитано автоматически';
+    if (selectedTime) {
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+        const endHour = (hours + 1 + Math.floor((minutes + 30) / 60)) % 24;
+        const endMin = (minutes + 30) % 60;
+        visitEndText = `Визит завершится примерно в ${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+    }
+
+    // Текст для нижней панели
+    let bottomBarText = 'Выберите свободную дату и время';
+    if (selectedDay && selectedTime) {
+        bottomBarText = `${weekday}, ${selectedDay} ${monthGenitive} ${currentYear} • ${selectedTime}`;
+    } else if (selectedDay) {
+        bottomBarText = `${weekday}, ${selectedDay} ${monthGenitive} ${currentYear} • выберите время`;
+    }
+
+    return (
+        <div className="page">
+            {/* Шапка */}
+            <header className="header">
+                <div className="container header-container">
+                    <div className="brand">
+                        <div className="brand-logo">A</div>
+                        <div className="brand-text">
+                            <span className="brand-title">AURA</span>
+                            <span className="brand-subtitle">BEAUTY ATELIER</span>
+                        </div>
+                    </div>
+
+                    <div className="header-help">
+                        <span className="help-label">Нужна помощь?</span>
+                        <a href="tel:+74951201818" class="help-phone">+7 495 120-18-18</a>
+                    </div>
+                </div>
+
+                {/* Степпер */}
+                <nav className="stepper-nav" aria-label="Шаги записи">
+                    <div className="container">
+                        <div className="stepper-progress">
+                            <span className="progress-bar filled" />
+                            <span className="progress-bar filled" />
+                            <span className="progress-bar filled" />
+                            <span className="progress-bar" />
+                            <span className="progress-bar" />
+                        </div>
+                        <ol className="stepper-list">
+                            <li className="step-item completed">
+                                <span className="step-badge">
+                                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                        <path d="M1 4L3.8 6.8L9 1.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                </span>
+                                <span className="step-text">Мастер</span>
+                            </li>
+                            <li className="step-item completed">
+                                <span className="step-badge">
+                                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                        <path d="M1 4L3.8 6.8L9 1.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                </span>
+                                <span className="step-text">Услуга</span>
+                            </li>
+                            <li className="step-item active">
+                                <span className="step-badge">3</span>
+                                <span className="step-text">Дата и время</span>
+                            </li>
+                            <li className="step-item">
+                                <span className="step-badge">4</span>
+                                <span className="step-text">Контакты</span>
+                            </li>
+                            <li className="step-item">
+                                <span className="step-badge">5</span>
+                                <span className="step-text">Подтверждение</span>
+                            </li>
+                        </ol>
+                    </div>
+                </nav>
+            </header>
+
+            {/* Основная область */}
+            <main className="main">
+                <div className="container">
+                    <div className="page-intro">
+                        <span className="step-kicker">ШАГ 3 ИЗ 5</span>
+                        <h1 className="page-title">Когда вам удобно?</h1>
+                        <p className="page-description">Выберите свободную дату и время. Мы зарезервируем слот на 10 минут, пока вы завершаете запись.</p>
+                    </div>
+
+                    <div className="booking-layout">
+                        {/* Карточка 1: Календарь */}
+                        <section className="card calendar-card">
+                            <div className="card-header">
+                                <div>
+                                    <h2 className="card-title">{MONTHS_NOMINATIVE[currentMonth]} {currentYear}</h2>
+                                    <p className="card-subtitle">Время московское</p>
+                                </div>
+                                <div className="calendar-arrows">
+                                    <button className="arrow-btn" type="button" onClick={handlePrevMonth} aria-label="Предыдущий месяц">‹</button>
+                                    <button className="arrow-btn" type="button" onClick={handleNextMonth} aria-label="Следующий месяц">›</button>
+                                </div>
+                            </div>
+
+                            <div className="weekdays-grid">
+                                {['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'].map((d) => (
+                                    <span key={d}>{d}</span>
+                                ))}
+                            </div>
+
+                            {/* Состояние загрузки или ошибки «сегодня» */}
+                            {isLoadingToday ? (
+                                <div className="loading-box">
+                                    <div className="spinner" />
+                                    <span>Синхронизация с сервером…</span>
+                                </div>
+                            ) : errorToday ? (
+                                <div className="error-box">
+                                    <span>{errorToday}</span>
+                                    <button className="retry-btn" type="button" onClick={loadTodayData}>Повторить</button>
+                                </div>
+                            ) : (
+                                <div className="days-grid">
+                                    {weeks.map((week, wIdx) =>
+                                        week.map((cell, cIdx) => {
+                                            const key = `${wIdx}-${cIdx}`;
+
+                                            if (cell.otherMonth) {
+                                                return <span key={key} className="day-cell other-month">{cell.day}</span>;
+                                            }
+
+                                            const selectable = isDateSelectable(cell.day, currentMonth, currentYear, today);
+                                            if (!selectable) {
+                                                return <span key={key} className="day-cell disabled">{cell.day}</span>;
+                                            }
+
+                                            const isSelected = cell.day === selectedDay;
+                                            return (
+                                                <button
+                                                    key={key}
+                                                    type="button"
+                                                    className={`day-cell ${isSelected ? 'selected' : ''}`}
+                                                    onClick={() => handleDayClick(cell.day)}
+                                                >
+                                                    {cell.day}
+                                                </button>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="calendar-legend">
+                                <span className="legend-item">
+                                    <span className="legend-dot available" />
+                                    Есть время
+                                </span>
+                                <span className="legend-item">
+                                    <span className="legend-dot unavailable" />
+                                    Нет мест
+                                </span>
+                            </div>
+                        </section>
+
+                        {/* Карточка 2: Слоты времени */}
+                        <section className="card time-card">
+                            <div className="card-header">
+                                <div>
+                                    <h2 className="card-title">
+                                        {selectedDay ? `${selectedDay} ${monthGenitive}` : 'Выберите дату'}
+                                    </h2>
+                                    <p className="card-subtitle">
+                                        {selectedDay
+                                            ? `${weekday} · ${isLoadingSlots ? '…' : slots.length} вариантов`
+                                            : 'Слоты появятся после выбора дня'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="slots-list">
+                                {isLoadingSlots ? (
+                                    <div className="loading-box">
+                                        <div className="spinner" />
+                                        <span>Загрузка слотов…</span>
+                                    </div>
+                                ) : errorSlots ? (
+                                    <div className="error-box">
+                                        <span>{errorSlots}</span>
+                                        <button className="retry-btn" type="button" onClick={() => setSelectedDay(d => d)}>Повторить</button>
+                                    </div>
+                                ) : selectedDay ? (
+                                    slots.map((slot) => {
+                                        const isSelected = slot.time === selectedTime;
+                                        const isDisabled = !slot.available;
+                                        return (
+                                            <button
+                                                key={slot.time}
+                                                type="button"
+                                                disabled={isDisabled}
+                                                className={`slot-item ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+                                                onClick={() => handleTimeClick(slot.time)}
+                                            >
+                                                {slot.time}
+                                            </button>
+                                        );
+                                    })
+                                ) : (
+                                    <p className="no-slots-message">Пожалуйста, выберите свободный день в календаре</p>
+                                )}
+                            </div>
+
+                            <div className="time-footer-note">
+                                <svg className="note-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                <span>{visitEndText}</span>
+                            </div>
+                        </section>
+
+                        {/* Карточка 3: Ваша запись */}
+                        <aside className="card summary-card">
+                            <div className="summary-header">
+                                <h2 className="card-title">Ваша запись</h2>
+                                <span className="badge-draft">ЧЕРНОВИК</span>
+                            </div>
+
+                            <dl className="summary-list">
+                                <div className="summary-row">
+                                    <dt>Мастер</dt>
+                                    <dd>Анна Лебедева</dd>
+                                </div>
+                                <div className="summary-row">
+                                    <dt>Услуга</dt>
+                                    <dd>Авторская стрижка</dd>
+                                </div>
+                                <div className="summary-row">
+                                    <dt>Дата</dt>
+                                    <dd>{selectedDay ? `${selectedDay} ${monthGenitive} ${currentYear}` : 'Не выбрана'}</dd>
+                                </div>
+                                <div className="summary-row">
+                                    <dt>Время</dt>
+                                    <dd>{selectedTime || 'Не выбрано'}</dd>
+                                </div>
+                            </dl>
+
+                            <div className="summary-divider" />
+
+                            <div className="summary-total-row">
+                                <span className="total-label">Итого</span>
+                                <span className="total-price">5 500 ₽</span>
+                            </div>
+
+                            <div className="summary-guarantee">
+                                <svg className="guarantee-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                    <path d="M9 12l2 2 4-4" />
+                                </svg>
+                                <span>Оплата после визита. Перенос без штрафа за 12 часов.</span>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </main>
+
+            {/* Подвал */}
+            <footer className="footer">
+                <div className="container footer-container">
+                    <a href="#" className="back-link">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        <span>К услугам</span>
+                    </a>
+
+                    <div className="footer-actions">
+                        <div className="bottom-selection-info">
+                            <svg className="timer-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="13" r="8" />
+                                <path d="M12 9v4l2 2" />
+                                <path d="M5 3L2 6" />
+                                <path d="M22 6l-3-3" />
+                                <path d="M10 2h4" />
+                            </svg>
+                            <span>{bottomBarText}</span>
+                        </div>
+
+                        <button className="btn-continue" type="button">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                            <span>Продолжить</span>
+                        </button>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    );
 }
 
 export default App;

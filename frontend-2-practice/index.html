@@ -1,14 +1,232 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Выбор даты и времени</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шаг 3 — Выбор даты и времени | AURA</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts: Cormorant Garamond и Manrope -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
     <div class="page">
-      <!-- Перенесите вашу верстку. Удалите статичные данные. Подключите скрипт -->
+        <!-- Шапка сайта -->
+        <header class="header">
+            <div class="container header-container">
+                <div class="brand">
+                    <div class="brand-logo">A</div>
+                    <div class="brand-text">
+                        <span class="brand-title">AURA</span>
+                        <span class="brand-subtitle">BEAUTY ATELIER</span>
+                    </div>
+                </div>
+
+                <div class="header-help">
+                    <span class="help-label">Нужна помощь?</span>
+                    <a href="tel:+74951201818" class="help-phone">+7 495 120-18-18</a>
+                </div>
+            </div>
+
+            <!-- Степпер -->
+            <nav class="stepper-nav" aria-label="Шаги записи">
+                <div class="container">
+                    <div class="stepper-progress">
+                        <span class="progress-bar filled"></span>
+                        <span class="progress-bar filled"></span>
+                        <span class="progress-bar filled"></span>
+                        <span class="progress-bar"></span>
+                        <span class="progress-bar"></span>
+                    </div>
+                    <ol class="stepper-list">
+                        <li class="step-item completed">
+                            <span class="step-badge">
+                                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                    <path d="M1 4L3.8 6.8L9 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <span class="step-text">Мастер</span>
+                        </li>
+                        <li class="step-item completed">
+                            <span class="step-badge">
+                                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                    <path d="M1 4L3.8 6.8L9 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <span class="step-text">Услуга</span>
+                        </li>
+                        <li class="step-item active">
+                            <span class="step-badge">3</span>
+                            <span class="step-text">Дата и время</span>
+                        </li>
+                        <li class="step-item">
+                            <span class="step-badge">4</span>
+                            <span class="step-text">Контакты</span>
+                        </li>
+                        <li class="step-item">
+                            <span class="step-badge">5</span>
+                            <span class="step-text">Подтверждение</span>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Основная область -->
+        <main class="main">
+            <div class="container">
+                <div class="page-intro">
+                    <span class="step-kicker">ШАГ 3 ИЗ 5</span>
+                    <h1 class="page-title">Когда вам удобно?</h1>
+                    <p class="page-description">Выберите свободную дату и время. Мы зарезервируем слот на 10 минут, пока вы завершаете запись.</p>
+                </div>
+
+                <!-- 3 карточки -->
+                <div class="booking-layout">
+                    <!-- Карточка 1: Календарь (400px) -->
+                    <section class="card calendar-card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title" id="calendarMonthTitle">Октябрь 2026</h2>
+                                <p class="card-subtitle">Время московское</p>
+                            </div>
+                            <div class="calendar-arrows">
+                                <button class="arrow-btn" id="prevMonthBtn" type="button" aria-label="Предыдущий месяц">‹</button>
+                                <button class="arrow-btn" id="nextMonthBtn" type="button" aria-label="Следующий месяц">›</button>
+                            </div>
+                        </div>
+
+                        <!-- Дни недели -->
+                        <div class="weekdays-grid">
+                            <span>ПН</span>
+                            <span>ВТ</span>
+                            <span>СР</span>
+                            <span>ЧТ</span>
+                            <span>ПТ</span>
+                            <span>СБ</span>
+                            <span>ВС</span>
+                        </div>
+
+                        <!-- Динамическая сетка дней (заполняется через script.js) -->
+                        <div class="days-grid" id="calendarDays"></div>
+
+                        <!-- Легенда календаря -->
+                        <div class="calendar-legend">
+                            <span class="legend-item">
+                                <span class="legend-dot available"></span>
+                                Есть время
+                            </span>
+                            <span class="legend-item">
+                                <span class="legend-dot unavailable"></span>
+                                Нет мест
+                            </span>
+                        </div>
+                    </section>
+
+                    <!-- Карточка 2: Слоты времени (180px) -->
+                    <section class="card time-card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title" id="timeCardTitle">18 октября</h2>
+                                <p class="card-subtitle" id="timeCardSubtitle">Воскресенье · 7 вариантов</p>
+                            </div>
+                        </div>
+
+                        <!-- Список слотов (заполняется через script.js) -->
+                        <div class="slots-list" id="timeSlots"></div>
+
+                        <div class="time-footer-note">
+                            <svg class="note-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            <span id="visitEndNote">Визит завершится примерно в 16:00</span>
+                        </div>
+                    </section>
+
+                    <!-- Карточка 3: Ваша запись (235px) -->
+                    <aside class="card summary-card">
+                        <div class="summary-header">
+                            <h2 class="card-title">Ваша запись</h2>
+                            <span class="badge-draft">ЧЕРНОВИК</span>
+                        </div>
+
+                        <dl class="summary-list">
+                            <div class="summary-row">
+                                <dt>Мастер</dt>
+                                <dd>Анна Лебедева</dd>
+                            </div>
+                            <div class="summary-row">
+                                <dt>Услуга</dt>
+                                <dd>Авторская стрижка</dd>
+                            </div>
+                            <div class="summary-row">
+                                <dt>Дата</dt>
+                                <dd id="summaryDate">18 октября 2026</dd>
+                            </div>
+                            <div class="summary-row">
+                                <dt>Время</dt>
+                                <dd id="summaryTime">14:30</dd>
+                            </div>
+                        </dl>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-total-row">
+                            <span class="total-label">Итого</span>
+                            <span class="total-price">5 500 ₽</span>
+                        </div>
+
+                        <div class="summary-guarantee">
+                            <svg class="guarantee-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <path d="M9 12l2 2 4-4"/>
+                            </svg>
+                            <span>Оплата после визита. Перенос без штрафа за 12 часов.</span>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </main>
+
+        <!-- Подвал -->
+        <footer class="footer">
+            <div class="container footer-container">
+                <a href="#" class="back-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>К услугам</span>
+                </a>
+
+                <div class="footer-actions">
+                    <!-- Обновляемый блок даты и времени -->
+                    <div class="bottom-selection-info" id="bottomSelectionInfo">
+                        <svg class="timer-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="13" r="8"/>
+                            <path d="M12 9v4l2 2"/>
+                            <path d="M5 3L2 6"/>
+                            <path d="M22 6l-3-3"/>
+                            <path d="M10 2h4"/>
+                        </svg>
+                        <span id="bottomBarText">Воскресенье, 18 октября 2026 • 14:30</span>
+                    </div>
+
+                    <button class="btn-continue" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                        <span>Продолжить</span>
+                    </button>
+                </div>
+            </div>
+        </footer>
     </div>
-  </body>
+
+    <!-- Подключаем JavaScript перед закрытием body -->
+    <script src="script.js"></script>
+</body>
 </html>
