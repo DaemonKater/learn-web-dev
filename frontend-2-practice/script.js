@@ -64,10 +64,6 @@
 //   return weeks;
 // }
 
-// =============================================================================
-// 1. ДАННЫЕ
-// =============================================================================
-
 const MONTHS_NOMINATIVE = [
     'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
@@ -82,7 +78,6 @@ const DAYS_OF_WEEK = [
     'Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'
 ];
 
-// «Сегодня» — системная дата
 const now = new Date();
 const TODAY = {
     year: now.getFullYear(),
@@ -90,7 +85,6 @@ const TODAY = {
     day: now.getDate()
 };
 
-// Слоты времени
 const BASE_SLOTS = [
     { time: '10:00', available: true },
     { time: '11:30', available: true },
@@ -101,24 +95,13 @@ const BASE_SLOTS = [
     { time: '19:00', available: true }
 ];
 
-// Занятые дни в октябре 2026 (по макету: «Нет мест»)
-const BOOKED_DAYS_OCT_2026 = [1, 2, 8, 9, 15, 16, 22, 23, 29, 30];
-
-// =============================================================================
-// 2. СОСТОЯНИЕ (STATE)
-// =============================================================================
-
 const state = {
-    currentYear: 2026,
-    currentMonth: 9,       // Октябрь (0-индексированный)
-    selectedDay: 18,       // 18 октября по умолчанию
-    selectedTime: '14:30', // 14:30 по умолчанию
+    currentYear: TODAY.year,
+    currentMonth: TODAY.month,
+    selectedDay: TODAY.day,
+    selectedTime: null,
     slots: []
 };
-
-// =============================================================================
-// 3. ЧИСТЫЕ ФУНКЦИИ
-// =============================================================================
 
 function buildCalendarGrid(year, month) {
     const firstDay = new Date(year, month, 1);
@@ -153,6 +136,7 @@ function buildCalendarGrid(year, month) {
 }
 
 function compareDates(a, b) {
+    if (!a || !b) return 0;
     const d1 = new Date(a.year, a.month, a.day);
     const d2 = new Date(b.year, b.month, b.day);
     if (d1 < d2) return -1;
@@ -161,13 +145,8 @@ function compareDates(a, b) {
 }
 
 function isDateSelectable(day, month, year, today) {
-    if (compareDates({ year, month, day }, today) < 0) {
-        return false;
-    }
-    if (year === 2026 && month === 9 && BOOKED_DAYS_OCT_2026.includes(day)) {
-        return false;
-    }
-    return true;
+    if (!today) return true;
+    return compareDates({ year, month, day }, today) >= 0;
 }
 
 function getWeekdayName(year, month, day) {
@@ -175,13 +154,29 @@ function getWeekdayName(year, month, day) {
     return DAYS_OF_WEEK[date.getDay()];
 }
 
-function generateSlotsForDay(day) {
-    return BASE_SLOTS.map(slot => ({ ...slot }));
-}
+function getSlotsForDate(year, month, day, today = TODAY) {
+    const currentDate = new Date();
+    const isToday =
+        today &&
+        year === today.year &&
+        month === today.month &&
+        day === today.day;
 
-// =============================================================================
-// 4. ОТРИСОВКА И ОБРАБОТЧИКИ
-// =============================================================================
+    return BASE_SLOTS.map((slot) => {
+        if (isToday) {
+            const [slotHours, slotMinutes] = slot.time.split(':').map(Number);
+            const isPastTime =
+                slotHours < currentDate.getHours() ||
+                (slotHours === currentDate.getHours() && slotMinutes <= currentDate.getMinutes());
+
+            return {
+                ...slot,
+                available: slot.available && !isPastTime
+            };
+        }
+        return { ...slot };
+    });
+}
 
 const calendarMonthTitleEl = document.getElementById('calendarMonthTitle');
 const calendarDaysEl = document.getElementById('calendarDays');
@@ -196,6 +191,7 @@ const visitEndNoteEl = document.getElementById('visitEndNote');
 const summaryDateEl = document.getElementById('summaryDate');
 const summaryTimeEl = document.getElementById('summaryTime');
 const bottomBarTextEl = document.getElementById('bottomBarText');
+const btnContinueEl = document.querySelector('.btn-continue');
 
 function renderCalendar() {
     calendarMonthTitleEl.textContent = `${MONTHS_NOMINATIVE[state.currentMonth]} ${state.currentYear}`;
@@ -223,7 +219,6 @@ function renderCalendar() {
 
     calendarDaysEl.innerHTML = html;
 
-    // Заново вешаем обработчики на новые кнопки
     const dayButtons = calendarDaysEl.querySelectorAll('button.day-cell');
     dayButtons.forEach(btn => {
         btn.addEventListener('click', onDayClick);
@@ -233,11 +228,8 @@ function renderCalendar() {
 function onDayClick(event) {
     const day = parseInt(event.currentTarget.dataset.day, 10);
     state.selectedDay = day;
-
-    // сброс времени при смене дня
     state.selectedTime = null;
-
-    state.slots = generateSlotsForDay(day);
+    state.slots = getSlotsForDate(state.currentYear, state.currentMonth, day, TODAY);
 
     renderCalendar();
     renderTimeSlots();
@@ -276,7 +268,6 @@ function renderTimeSlots() {
         btn.addEventListener('click', onTimeSlotClick);
     });
 
-    // Расчет примерного окончания визита (+ 1.5 часа)
     if (state.selectedTime) {
         const [hours, minutes] = state.selectedTime.split(':').map(Number);
         const endHour = (hours + 1 + Math.floor((minutes + 30) / 60)) % 24;
@@ -330,6 +321,13 @@ function onNextMonthClick() {
     updateSummaryAndBottomBar();
 }
 
+function onContinueClick() {
+    if (state.selectedDay && state.selectedTime) {
+        const monthGenitive = MONTHS_GENITIVE[state.currentMonth];
+        alert(`Запись оформлена на ${state.selectedDay} ${monthGenitive} ${state.currentYear} в ${state.selectedTime}`);
+    }
+}
+
 function updateSummaryAndBottomBar() {
     const monthGenitive = MONTHS_GENITIVE[state.currentMonth];
 
@@ -345,7 +343,13 @@ function updateSummaryAndBottomBar() {
         summaryTimeEl.textContent = 'Не выбрано';
     }
 
-    if (state.selectedDay && state.selectedTime) {
+    const isComplete = Boolean(state.selectedDay && state.selectedTime);
+
+    if (btnContinueEl) {
+        btnContinueEl.disabled = !isComplete;
+    }
+
+    if (isComplete) {
         const weekday = getWeekdayName(state.currentYear, state.currentMonth, state.selectedDay);
         bottomBarTextEl.textContent = `${weekday}, ${state.selectedDay} ${monthGenitive} ${state.currentYear} • ${state.selectedTime}`;
     } else if (state.selectedDay) {
@@ -356,15 +360,15 @@ function updateSummaryAndBottomBar() {
     }
 }
 
-// =============================================================================
-// 5. ИНИЦИАЛИЗАЦИЯ
-// =============================================================================
-
 function init() {
-    state.slots = generateSlotsForDay(state.selectedDay);
+    state.slots = getSlotsForDate(state.currentYear, state.currentMonth, state.selectedDay, TODAY);
 
     prevMonthBtn.addEventListener('click', onPrevMonthClick);
     nextMonthBtn.addEventListener('click', onNextMonthClick);
+
+    if (btnContinueEl) {
+        btnContinueEl.addEventListener('click', onContinueClick);
+    }
 
     renderCalendar();
     renderTimeSlots();
