@@ -37,7 +37,6 @@ body {
     min-height: 100vh;
 }
 
-/* Контейнер по макету */
 .container {
     max-width: 870px;
     margin: 0 auto;
@@ -45,9 +44,6 @@ body {
     width: 100%;
 }
 
-/* ===============================
-   Шапка (Header) и Степпер
-   =============================== */
 .header {
     background-color: var(--bg-card);
     border-bottom: 1px solid var(--color-border);
@@ -123,7 +119,6 @@ body {
     color: var(--color-accent);
 }
 
-/* Линия степпера */
 .stepper-nav {
     padding-bottom: 14px;
 }
@@ -187,9 +182,6 @@ body {
     color: #ffffff;
 }
 
-/* ===============================
-   Основная часть (Main)
-   =============================== */
 .main {
     flex: 1;
     padding: 22px 0 22px;
@@ -223,9 +215,6 @@ body {
     max-width: 500px;
 }
 
-/* ===============================
-   Сетка трёх карточек: 400px | 180px | 235px
-   =============================== */
 .booking-layout {
     display: grid;
     grid-template-columns: 400px 180px 235px;
@@ -263,9 +252,6 @@ body {
     margin-top: 3px;
 }
 
-/* ===============================
-   Карточка 1: Календарь (400px)
-   =============================== */
 .calendar-card {
     min-height: 330px;
 }
@@ -315,7 +301,6 @@ body {
     margin-bottom: 12px;
 }
 
-/* Плашка дня: 45px × 32px */
 .day-cell {
     font-family: var(--font-sans);
     font-size: 12.5px;
@@ -385,9 +370,6 @@ body {
     background-color: var(--color-text-light);
 }
 
-/* ===============================
-   Карточка 2: Слоты времени (180px)
-   =============================== */
 .time-card {
     min-height: 335px;
     padding: 18px 16px;
@@ -400,7 +382,6 @@ body {
     margin-bottom: 12px;
 }
 
-/* Кнопка слота: высота 30px */
 .slot-item {
     background-color: #ffffff;
     border: 1px solid var(--color-border);
@@ -456,9 +437,6 @@ body {
     color: var(--color-text-muted);
 }
 
-/* ===============================
-   Карточка 3: Ваша запись (235px)
-   =============================== */
 .summary-card {
     padding: 18px 20px;
 }
@@ -543,9 +521,6 @@ body {
     margin-top: 1px;
 }
 
-/* ===============================
-   Подвал (Footer)
-   =============================== */
 .footer {
     border-top: 1px solid var(--color-border);
     padding: 16px 0 20px;
@@ -607,13 +582,21 @@ body {
     transition: all 0.2s ease;
 }
 
-.btn-continue:hover {
+.btn-continue:hover:not(:disabled) {
     background-color: var(--color-accent-hover);
     box-shadow: 0 4px 12px rgba(168, 93, 73, 0.25);
     transform: translateY(-1px);
 }
 
-/* Адаптивность для узких экранов */
+.btn-continue:disabled {
+    background-color: #d1cbc2;
+    color: #8b857c;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    opacity: 0.65;
+}
+
 @media (max-width: 880px) {
     .booking-layout {
         grid-template-columns: 1fr;

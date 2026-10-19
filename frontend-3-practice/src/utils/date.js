@@ -1,4 +1,3 @@
-// Названия месяцев
 export const MONTHS_NOMINATIVE = [
     'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
@@ -9,12 +8,10 @@ export const MONTHS_GENITIVE = [
     'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
 ];
 
-// Дни недели
 export const DAYS_OF_WEEK = [
     'Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'
 ];
 
-// Системная дата
 const now = new Date();
 export const TODAY = {
     year: now.getFullYear(),
@@ -22,7 +19,6 @@ export const TODAY = {
     day: now.getDate()
 };
 
-// Базовые слоты времени
 export const BASE_SLOTS = [
     { time: '10:00', available: true },
     { time: '11:30', available: true },
@@ -33,12 +29,6 @@ export const BASE_SLOTS = [
     { time: '19:00', available: true }
 ];
 
-// Занятые дни в октябре 2026 (по макету: «Нет мест»)
-export const BOOKED_DAYS_OCT_2026 = [1, 2, 8, 9, 15, 16, 22, 23, 29, 30];
-
-/**
- * Строит сетку календаря (возвращает массив недель по 7 дней)
- */
 export function buildCalendarGrid(year, month) {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -71,10 +61,8 @@ export function buildCalendarGrid(year, month) {
     return weeks;
 }
 
-/**
- * Сравнение дат
- */
 export function compareDates(a, b) {
+    if (!a || !b) return 0;
     const d1 = new Date(a.year, a.month, a.day);
     const d2 = new Date(b.year, b.month, b.day);
     if (d1 < d2) return -1;
@@ -82,23 +70,36 @@ export function compareDates(a, b) {
     return 0;
 }
 
-/**
- * Проверка доступности дня
- */
 export function isDateSelectable(day, month, year, today) {
-    if (compareDates({ year, month, day }, today) < 0) {
-        return false;
-    }
-    if (year === 2026 && month === 9 && BOOKED_DAYS_OCT_2026.includes(day)) {
-        return false;
-    }
-    return true;
+    if (!today) return true;
+    return compareDates({ year, month, day }, today) >= 0;
 }
 
-/**
- * Получение дня недели
- */
 export function getWeekdayName(year, month, day) {
     const date = new Date(year, month, day);
     return DAYS_OF_WEEK[date.getDay()];
+}
+
+export function getSlotsForDate(year, month, day, today = TODAY) {
+    const currentDate = new Date();
+    const isToday =
+        today &&
+        year === today.year &&
+        month === today.month &&
+        day === today.day;
+
+    return BASE_SLOTS.map((slot) => {
+        if (isToday) {
+            const [slotHours, slotMinutes] = slot.time.split(':').map(Number);
+            const isPastTime =
+                slotHours < currentDate.getHours() ||
+                (slotHours === currentDate.getHours() && slotMinutes <= currentDate.getMinutes());
+
+            return {
+                ...slot,
+                available: slot.available && !isPastTime
+            };
+        }
+        return { ...slot };
+    });
 }
