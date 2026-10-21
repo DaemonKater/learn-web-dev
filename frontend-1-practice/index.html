@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Шаг 3 — Выбор даты и времени | AURA</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Подключение шрифтов Cormorant Garamond и Manrope -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="page">
-        <!-- Шапка сайта -->
         <header class="header">
             <div class="container header-container">
                 <div class="brand">
@@ -29,7 +27,6 @@
                 </div>
             </div>
 
-            <!-- Степпер (Индикатор шагов) -->
             <nav class="stepper-nav" aria-label="Шаги записи">
                 <div class="container">
                     <div class="stepper-progress">
@@ -73,19 +70,15 @@
             </nav>
         </header>
 
-        <!-- Основная область -->
         <main class="main">
             <div class="container">
-                <!-- Вводный блок заголовка -->
                 <div class="page-intro">
                     <span class="step-kicker">ШАГ 3 ИЗ 5</span>
                     <h1 class="page-title">Когда вам удобно?</h1>
                     <p class="page-description">Выберите свободную дату и время. Мы зарезервируем слот на 10 минут, пока вы завершаете запись.</p>
                 </div>
 
-                <!-- 3 карточки (сетка макета) -->
                 <div class="booking-layout">
-                    <!-- Карточка 1: Календарь (400px) -->
                     <section class="card calendar-card">
                         <div class="card-header">
                             <div>
@@ -98,7 +91,6 @@
                             </div>
                         </div>
 
-                        <!-- Дни недели -->
                         <div class="weekdays-grid">
                             <span>ПН</span>
                             <span>ВТ</span>
@@ -109,50 +101,48 @@
                             <span>ВС</span>
                         </div>
 
-                        <!-- Сетка дней месяца -->
                         <div class="days-grid">
+                            <span class="day-cell other-month">28</span>
                             <span class="day-cell other-month">29</span>
                             <span class="day-cell other-month">30</span>
                             <span class="day-cell disabled">1</span>
                             <span class="day-cell disabled">2</span>
                             <button class="day-cell" type="button">3</button>
                             <button class="day-cell" type="button">4</button>
-                            <button class="day-cell" type="button">5</button>
 
+                            <button class="day-cell" type="button">5</button>
                             <button class="day-cell" type="button">6</button>
                             <button class="day-cell" type="button">7</button>
                             <span class="day-cell disabled">8</span>
                             <span class="day-cell disabled">9</span>
                             <button class="day-cell" type="button">10</button>
                             <button class="day-cell" type="button">11</button>
-                            <button class="day-cell" type="button">12</button>
 
+                            <button class="day-cell" type="button">12</button>
                             <button class="day-cell" type="button">13</button>
                             <button class="day-cell" type="button">14</button>
                             <span class="day-cell disabled">15</span>
                             <span class="day-cell disabled">16</span>
                             <button class="day-cell" type="button">17</button>
                             <button class="day-cell selected" type="button">18</button>
-                            <button class="day-cell" type="button">19</button>
 
+                            <button class="day-cell" type="button">19</button>
                             <button class="day-cell" type="button">20</button>
                             <button class="day-cell" type="button">21</button>
                             <span class="day-cell disabled">22</span>
                             <span class="day-cell disabled">23</span>
                             <button class="day-cell" type="button">24</button>
                             <button class="day-cell" type="button">25</button>
-                            <button class="day-cell" type="button">26</button>
 
+                            <button class="day-cell" type="button">26</button>
                             <button class="day-cell" type="button">27</button>
                             <button class="day-cell" type="button">28</button>
                             <span class="day-cell disabled">29</span>
                             <span class="day-cell disabled">30</span>
                             <button class="day-cell" type="button">31</button>
                             <span class="day-cell other-month">1</span>
-                            <span class="day-cell other-month">2</span>
                         </div>
 
-                        <!-- Легенда календаря -->
                         <div class="calendar-legend">
                             <span class="legend-item">
                                 <span class="legend-dot available"></span>
@@ -165,7 +155,6 @@
                         </div>
                     </section>
 
-                    <!-- Карточка 2: Слоты времени (180px) -->
                     <section class="card time-card">
                         <div class="card-header">
                             <div>
@@ -193,7 +182,6 @@
                         </div>
                     </section>
 
-                    <!-- Карточка 3: Ваша запись (235px) -->
                     <aside class="card summary-card">
                         <div class="summary-header">
                             <h2 class="card-title">Ваша запись</h2>
@@ -238,7 +226,6 @@
             </div>
         </main>
 
-        <!-- Подвал сайта -->
         <footer class="footer">
             <div class="container footer-container">
                 <a href="#" class="back-link">
